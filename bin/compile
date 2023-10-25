@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+set -e
+set -o errexit
+set -o pipefail
+
+if [ -n "${BUILDPACK_DEBUG}" ]
+then
+    set -o xtrace
+fi
+
+readonly BUILD_DIR="${1}"
+readonly CACHE_DIR="${2}"
+
+readonly DOMIBUS_FULL_URL="https://ec.europa.eu/digital-building-blocks/artifact/repository/eDelivery/eu/domibus/domibus-msh-distribution/5.1.1/domibus-msh-distribution-5.1.1-tomcat-full.zip"
+readonly DOMIBUS_SQL_SCRIPTS_URL="https://ec.europa.eu/digital-building-blocks/artifact/repository/eDelivery/eu/domibus/domibus-msh-distribution/5.1.1/domibus-msh-distribution-5.1.1-sql-scripts.zip"
+readonly MYSQL_CONNECTOR_URL="https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-8.0.32.zip"
+
+# Function to download, cache, unzip, and move a file
+install_file() {
+    local file_url="$1"
+    local cache_dir="$2"
+    local target_dir="$3"
+
+    local file_name="$(basename "$file_url")"
+    local cached_file="$cache_dir/$file_name"
+
+    if [ ! -f "$cached_file" ]; then
+        # Download the file if it doesn't exist in the cache
+        wget "$file_url" -O "$cached_file"
+    fi
+
+    # Unzip the file to the target directory
+    unzip -q "$cached_file" -d "$target_dir"
+}
+
+echo "Installing Domibus 5.1.1"
+
+install_file "$DOMIBUS_FULL_URL" "$CACHE_DIR" "$BUILD_DIR"
+install_file "$DOMIBUS_SQL_SCRIPTS_URL" "$CACHE_DIR" "$BUILD_DIR"
+install_file "$MYSQL_CONNECTOR_URL" "$CACHE_DIR" "$BUILD_DIR"
+
+mv "$BUILD_DIR/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar" "$BUILD_DIR/domibus/lib"
+rm -r "$BUILD_DIR/mysql-connector-j-8.0.32"
+
+echo "Done"
+exit 0

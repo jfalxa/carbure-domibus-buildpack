@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "Carbure Domibus"
+exit 0
