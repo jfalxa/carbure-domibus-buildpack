@@ -43,5 +43,10 @@ install_file "$MYSQL_CONNECTOR_URL" "$CACHE_DIR" "$BUILD_DIR"
 mv "$BUILD_DIR/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar" "$BUILD_DIR/domibus/lib"
 rm -r "$BUILD_DIR/mysql-connector-j-8.0.32"
 
+cp ./files/setenv.sh $BUILD_DIR/domibus/bin/
+
+# Make the scripts executable
+chmod +x $BUILD_DIR/domibus/bin/*.sh
+
 echo "Done"
 exit 0
